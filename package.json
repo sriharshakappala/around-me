@@ -1,0 +1,18 @@
+{
+  "name": "around-me",
+  "main": "./lib/around-me",
+  "version": "0.0.0",
+  "description": "Displays news around you.",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "around-me:toggle"
+  },
+  "repository": "https://github.com/atom/around-me",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+  }
+}
