@@ -17,10 +17,22 @@ module.exports = AroundMe =
       default: false
     notificationType:
       title: 'Notification Type',
-      description: 'The type of notification that should be used to display the strategies. (Default: Info)'
+      description: 'The type of notification that should be used to display the news. (Default: Info)'
       type: 'string',
       default: 'Info',
       enum: ['Success', 'Info', 'Warning', 'Error']
+    newsFetchFrequency:
+      title: 'Fetch Frequency'
+      description: 'How frequently (in minutes) should this package fetch news from the sources? (Default: 60)'
+      type: 'integer'
+      default: 60
+      minimum: 30
+    newsDisplayFrequency:
+      title: 'Display Frequency'
+      description: 'How frequently (in seconds) should this package fetch news from the sources? (Default: 60)'
+      type: 'integer'
+      default: 60
+      minimum: 30
 
   activate: (state) ->
     @subscriptions = new CompositeDisposable
@@ -30,12 +42,19 @@ module.exports = AroundMe =
   deactivate: ->
     @subscriptions.dispose()
 
-  serialize: ->
-    aroundMeViewState: @aroundMeView.serialize()
+  startShowTimeout: ->
+    clearTimeout @showTimeout
+    inactiveSec = atom.config.get('oblique-strategies.showAfterInactivitySeconds')
+    @showTimeout = setTimeout =>
+      @show()
+    , inactiveSec * 1000
 
   toggle: ->
     @enabled = !@enabled
     if @enabled
-      atom.notifications.addInfo('Oblique Strategies: Enabled', { dismissable: false });
+      atom.notifications.addInfo('Around Me: Enabled', { dismissable: false });
+      @startShowTimeout()
     else
-      atom.notifications.addInfo('Oblique Strategies: Disabled', { dismissable: false });
+      atom.notifications.addInfo('Around Me: Disabled', { dismissable: false });
+      clearTimeout @showTimeout
+      @showTimeout = null
