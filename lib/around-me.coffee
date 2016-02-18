@@ -42,19 +42,14 @@ module.exports = AroundMe =
   deactivate: ->
     @subscriptions.dispose()
 
-  startShowTimeout: ->
-    clearTimeout @showTimeout
-    inactiveSec = atom.config.get('oblique-strategies.showAfterInactivitySeconds')
-    @showTimeout = setTimeout =>
-      @show()
-    , inactiveSec * 1000
+  fetchNews: ->
+    feedParser = require('feedparser')
+    request = require('request')
 
   toggle: ->
     @enabled = !@enabled
     if @enabled
       atom.notifications.addInfo('Around Me: Enabled', { dismissable: false });
-      @startShowTimeout()
+      @fetchNews()
     else
       atom.notifications.addInfo('Around Me: Disabled', { dismissable: false });
-      clearTimeout @showTimeout
-      @showTimeout = null
