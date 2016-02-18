@@ -43,8 +43,30 @@ module.exports = AroundMe =
     @subscriptions.dispose()
 
   fetchNews: ->
-    feedParser = require('feedparser')
     request = require('request')
+    FeedParser = require('feedparser')
+    req = request('http://feeds.mashable.com/Mashable?format=xml')
+    feedparser = new FeedParser()
+    req.on 'error', (error) ->
+      console.log('Oops, Something was wrong!')
+      return
+    req.on 'response', (res) ->
+      stream = this
+      if res.statusCode != 200
+        return @emit('error', new Error('Bad status code'))
+      stream.pipe feedparser
+      return
+    feedparser.on 'error', (error) ->
+      console.log('Oops, Something was wrong!')
+      return
+    feedparser.on 'readable', ->
+      stream = this
+      meta = @meta
+      item = undefined
+      addFn = 'add' + atom.config.get('around-me.notificationType')
+      while item = stream.read()
+        atom.notifications[addFn](item['title'], { dismissable: atom.config.get('around-me.isNewsSticky') });
+      return
 
   toggle: ->
     @enabled = !@enabled
