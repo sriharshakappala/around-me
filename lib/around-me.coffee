@@ -42,6 +42,9 @@ module.exports = AroundMe =
   deactivate: ->
     @subscriptions.dispose()
 
+  show: ->
+    atom.notifications.addInfo('Not defined yet!', { dismissable: true });
+
   fetchNews: ->
     request = require('request')
     FeedParser = require('feedparser')
