@@ -14,25 +14,19 @@ module.exports = AroundMe =
       title: 'Sticky news',
       description: 'Should news hang around (checked) or dismiss themselves (unchecked)? (Default: unchecked)'
       type: 'boolean'
-      default: false
+      default: true
     notificationType:
       title: 'Notification Type',
       description: 'The type of notification that should be used to display the news. (Default: Info)'
       type: 'string',
       default: 'Info',
       enum: ['Success', 'Info', 'Warning', 'Error']
-    newsFetchFrequency:
-      title: 'Fetch Frequency'
-      description: 'How frequently (in minutes) should this package fetch news from the sources? (Default: 60)'
-      type: 'integer'
-      default: 60
-      minimum: 30
     newsDisplayFrequency:
       title: 'Display Frequency'
-      description: 'How frequently (in seconds) should this package fetch news from the sources? (Default: 60)'
+      description: 'How frequently (in seconds) should this package should display a news item? (Default: 120)'
       type: 'integer'
-      default: 60
-      minimum: 30
+      default: 120
+      minimum: 60
 
   activate: (state) ->
     @subscriptions = new CompositeDisposable
@@ -68,7 +62,7 @@ module.exports = AroundMe =
       item = undefined
       addFn = 'add' + atom.config.get('around-me.notificationType')
       while item = stream.read()
-        atom.notifications[addFn](item['title'], { dismissable: atom.config.get('around-me.isNewsSticky') });
+        atom.notifications[addFn]("<a href=" + item['origlink'] + ">" + item['title'] + "</a>", { dismissable: atom.config.get('around-me.isNewsSticky') });
       return
 
   toggle: ->
