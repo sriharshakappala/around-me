@@ -44,6 +44,7 @@ module.exports = AroundMe =
     FeedParser = require('feedparser')
     req = request('http://feeds.mashable.com/Mashable?format=xml')
     feedparser = new FeedParser()
+    items = []
     req.on 'error', (error) ->
       console.log('Oops, Something was wrong!')
       return
@@ -56,15 +57,23 @@ module.exports = AroundMe =
     feedparser.on 'error', (error) ->
       console.log('Oops, Something was wrong!')
       return
+    feedparser.on 'end', ->
+      showNews = (news_array) ->
+        console.log news_array.pop()
+        if news_array.length > 0
+          setTimeout (news_array) ->
+            showNews(news_array)
+          ,1000
+          ,news_array
+      showNews(items)
     feedparser.on 'readable', ->
       stream = this
       meta = @meta
       item = undefined
       addFn = 'add' + atom.config.get('around-me.notificationType')
       while item = stream.read()
-        atom.notifications[addFn]("<a href=" + item['origlink'] + ">" + item['title'] + "</a>", { dismissable: atom.config.get('around-me.isNewsSticky') });
+        items.push("<a href=" + item['origlink'] + ">" + item['title'] + "</a>")
       return
-
   toggle: ->
     @enabled = !@enabled
     if @enabled
