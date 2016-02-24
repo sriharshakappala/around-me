@@ -59,7 +59,9 @@ module.exports = AroundMe =
       return
     feedparser.on 'end', ->
       showNews = (news_array) ->
-        console.log news_array.pop()
+        # console.log news_array.pop()
+        addFn = 'add' + atom.config.get('around-me.notificationType')
+        atom.notifications.addInfo(news_array.pop(), { dismissable: true });
         if news_array.length > 0
           setTimeout (news_array) ->
             showNews(news_array)
