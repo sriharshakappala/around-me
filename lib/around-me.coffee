@@ -23,15 +23,14 @@ module.exports = AroundMe =
       enum: ['Success', 'Info', 'Warning', 'Error']
     newsDisplayFrequency:
       title: 'Display Frequency'
-      description: 'How frequently (in seconds) should this package should display a news item? (Default: 120)'
+      description: 'How frequently (in seconds) should this package should display a news item? (Default: 60)'
       type: 'integer'
-      default: 120
+      default: 60
       minimum: 60
 
   activate: (state) ->
     @subscriptions = new CompositeDisposable
-    @subscriptions.add atom.commands.add 'atom-workspace', 'around-me:toggle': => @toggle()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'around-me:show': => @show()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'around-me:mashable': => @mashable()
 
   deactivate: ->
     @subscriptions.dispose()
@@ -39,12 +38,14 @@ module.exports = AroundMe =
   show: ->
     atom.notifications.addInfo('Not defined yet!', { dismissable: true });
 
-  fetchNews: ->
+  mashable: ->
     request = require('request')
     FeedParser = require('feedparser')
     req = request('http://feeds.mashable.com/Mashable?format=xml')
     feedparser = new FeedParser()
     items = []
+    addFn = 'add' + atom.config.get('around-me.notificationType')
+    display_delay = atom.config.get('around-me.newsDisplayFrequency') * 1000
     req.on 'error', (error) ->
       console.log('Oops, Something was wrong!')
       return
@@ -59,27 +60,17 @@ module.exports = AroundMe =
       return
     feedparser.on 'end', ->
       showNews = (news_array) ->
-        # console.log news_array.pop()
-        addFn = 'add' + atom.config.get('around-me.notificationType')
         atom.notifications.addInfo(news_array.pop(), { dismissable: true });
         if news_array.length > 0
           setTimeout (news_array) ->
             showNews(news_array)
-          ,1000
+          ,display_delay
           ,news_array
       showNews(items)
     feedparser.on 'readable', ->
       stream = this
       meta = @meta
       item = undefined
-      addFn = 'add' + atom.config.get('around-me.notificationType')
       while item = stream.read()
         items.push("<a href=" + item['origlink'] + ">" + item['title'] + "</a>")
       return
-  toggle: ->
-    @enabled = !@enabled
-    if @enabled
-      atom.notifications.addInfo('Around Me: Enabled', { dismissable: false });
-      @fetchNews()
-    else
-      atom.notifications.addInfo('Around Me: Disabled', { dismissable: false });
