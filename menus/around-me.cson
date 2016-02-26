@@ -6,7 +6,7 @@
       'submenu': [
         {
           'label': 'Mashable'
-          'command': 'around-me:toggle'
+          'command': 'around-me:mashable'
         }
       ]
     ]
