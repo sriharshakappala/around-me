@@ -1,10 +1,3 @@
-'context-menu':
-  'atom-text-editor': [
-    {
-      'label': 'Toggle around-me'
-      'command': 'around-me:toggle'
-    }
-  ]
 'menu': [
   {
     'label': 'Packages'
